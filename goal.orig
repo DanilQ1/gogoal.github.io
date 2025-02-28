@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400&display=swap" rel="stylesheet">
+    <title>Gradient Squares</title>
+    <style>
+        /* Стили остаются без изменений */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle, #66ae05, #2d5620);
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 90%;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: repeat(4, auto);
+            gap: 5px;
+        }
+
+        .square {
+            background: linear-gradient(145deg, #a1b88a, #c0d5a6);
+            border: 3px solid #d3d3d3; /* Светло-серая обводка */
+            box-shadow: 0 5px 5px -2px rgba(0, 0, 0, 0.6);
+            aspect-ratio: 1;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .square img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+            transform: rotate(0deg);
+            transition: transform 0.5s ease;
+        }
+
+        .rotate-45 {
+            transform: rotate(45deg);
+        }
+
+        .start-button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(145deg, #6bcc0d, #8be06b);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.3),
+                0 8px 12px rgba(0, 0, 0, 0.2),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.2);
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition:
+                transform 0.3s ease,
+                box-shadow 0.3s ease,
+                background 0.3s ease;
+            display: inline-block;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .start-button:hover {
+            transform: translateY(-4px);
+            box-shadow:
+                0 6px 10px rgba(0, 0, 0, 0.35),
+                0 12px 18px rgba(0, 0, 0, 0.25),
+                inset 0 -4px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .start-button:active {
+            transform: translateY(0);
+            box-shadow:
+                0 2px 4px rgba(0, 0, 0, 0.2),
+                0 4px 6px rgba(0, 0, 0, 0.15),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .start-button:focus {
+            outline: none;
+            box-shadow:
+                0 0 0 3px rgba(106, 164, 4, 0.5),
+                0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .header-text {
+            font-family: 'Oswald', sans-serif;
+            font-size: 46px;
+            color: white;
+            margin-bottom: 20px; /* Расстояние до контейнера */
+        }
+
+    </style>
+</head>
+<body>
+    <h1 class="header-text">Go Goal</h1>
+    <div class="container" id="squareContainer">
+        <!-- Квадраты будут добавлены через JavaScript -->
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+        <button class="start-button">Start</button>
+        <button class="start-button" onclick="window.location.href='https://negociowin.ru/xxx/newnegocio'" style="margin-top: 0px;">
+            Назад
+        </button>
+    </div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+const container = document.getElementById('squareContainer');
+const startButton = document.querySelector('.start-button');
+const tg = window.Telegram.WebApp;
+let currentColumn = 1; // Текущий столбец
+let currentBall = null; // Текущий мяч
+let currentSquare = null; // Текущий квадрат с мячом
+
+
+// Инициализация WebApp
+console.log("Initializing WebApp...");
+try {
+    tg.ready(); // Этот метод не возвращает Promise
+    console.log("WebApp is ready.");
+} catch (error) {
+    console.error("Error initializing WebApp:", error);
+}
+
+try {
+    tg.expand();
+    tg.requestFullscreen()
+        .then(() => console.log("Fullscreen mode activated."))
+        .catch(() => console.warn("Fullscreen mode is not supported or denied."));
+} catch (e) {
+    console.error("Error during fullscreen activation:", e);
+}
+
+// Функция для создания квадратов
+function createSquares() {
+    for (let i = 0; i < 28; i++) {
+        const square = document.createElement('div');
+        square.className = 'square';
+        square.style.position = 'relative'; // Для расчётов
+        container.appendChild(square);
+    }
+}
+
+// Убедимся, что квадраты создаются после полной инициализации WebApp
+window.onload = () => {
+    console.log("Window loaded. Starting square creation...");
+    createSquares();
+};
+
+// Функция для смены фона столбца
+function highlightColumn(columnIndex, highlight = true) {
+    const squares = document.querySelectorAll('.square');
+    const columnSquares = [
+        columnIndex - 1,
+        columnIndex + 6,
+        columnIndex + 13,
+        columnIndex + 20,
+    ]; // Индексы квадратов в столбце
+
+    columnSquares.forEach(index => {
+        const square = squares[index];
+        if (highlight) {
+            square.style.transition = 'background 0.5s ease';
+            square.style.background = 'white'; // Белый фон
+        } else {
+            square.style.background = 'linear-gradient(145deg, #a1b88a, #c0d5a6)'; // Исходный фон
+        }
+    });
+}
+
+// Функция для отображения белого круга
+function addCircle(square) {
+    const circle = document.createElement('div');
+    circle.style.width = '30%';
+    circle.style.height = '30%';
+    circle.style.borderRadius = '50%';
+    circle.style.backgroundColor = 'white';
+    circle.style.position = 'absolute';
+    circle.style.top = '50%';
+    circle.style.left = '50%';
+    circle.style.transform = 'translate(-50%, -50%)';
+    square.appendChild(circle);
+}
+
+// Функция для размещения шарика
+function placeBalls() {
+    if (currentColumn > 7) {
+        alert('Все столбцы заполнены!');
+        location.reload(); // Перезагрузка страницы
+        return;
+    }
+
+    const squares = document.querySelectorAll('.square');
+    const columnSquares = [
+        currentColumn - 1,
+        currentColumn + 6,
+        currentColumn + 13,
+        currentColumn + 20,
+    ]; // Индексы квадратов текущего столбца
+
+    // Сначала подсветить текущий столбец
+    highlightColumn(currentColumn);
+
+    // Таймаут для плавной анимации фона
+    setTimeout(() => {
+        // Выбор случайной ячейки в текущем столбце
+        const randomIndex = Math.floor(Math.random() * columnSquares.length);
+        const squareIndex = columnSquares[randomIndex];
+        const targetSquare = squares[squareIndex];
+
+        // Если это первое появление мяча, создаём его
+        if (!currentBall) {
+            const targetRect = targetSquare.getBoundingClientRect();
+            const img = document.createElement('img');
+            img.src = '/static/gogoalball.png'; // Укажите путь к изображению в папке static
+            img.alt = 'Ball';
+            img.style.position = 'absolute';
+
+            const ballHeight = Math.min(targetRect.width, targetRect.height) * 0.8; // 80% от размера квадрата
+            const ballWidth = ballHeight * 1.1; // Ширина чуть больше, чем высота (на 20%)
+
+            img.style.width = `${ballWidth}px`;
+            img.style.height = `${ballHeight}px`;
+
+            img.style.top = '0';
+            img.style.left = '0';
+            img.style.transition = 'transform 0.5s ease, top 1s ease, left 1s ease';
+            img.style.zIndex = '1000'; // Всегда поверх
+            document.body.appendChild(img);
+            currentBall = img;
+            currentSquare = targetSquare;
+
+            const startRect = targetSquare.getBoundingClientRect();
+            currentBall.style.top = `${startRect.top + window.scrollY + (startRect.height - ballHeight) / 2}px`;
+            currentBall.style.left = `${startRect.left + window.scrollX + (startRect.width - ballWidth) / 2}px`;
+        } else {
+            // Перемещаем мяч в новую ячейку
+            const startRect = currentSquare.getBoundingClientRect();
+            const endRect = targetSquare.getBoundingClientRect();
+
+            const ballHeight = currentBall.offsetHeight; // Текущая высота мяча
+            const ballWidth = currentBall.offsetWidth;   // Текущая ширина мяча
+
+            currentBall.style.transform = 'rotate(0deg)';
+            currentBall.style.top = `${endRect.top + window.scrollY + (endRect.height - ballHeight) / 2}px`;
+            currentBall.style.left = `${endRect.left + window.scrollX + (endRect.width - ballWidth) / 2}px`;
+
+            // После завершения анимации переносим мяч
+            setTimeout(() => {
+                addCircle(currentSquare); // Отображаем круг в старом квадрате
+                currentSquare = targetSquare; // Обновляем текущий квадрат
+
+                // Анимация поворота
+                currentBall.style.transform = 'rotate(60deg)';
+            }, 1000);
+        }
+
+        // Таймаут для возврата цвета столбца
+        setTimeout(() => {
+            highlightColumn(currentColumn, false);
+            currentColumn++; // Переход к следующему столбцу
+        }, 1500); // Ждём перед возвратом цвета
+    }, 500); // Ждём завершения анимации фона
+}
+
+// Обработчик клика на кнопку "Start"
+startButton.addEventListener('click', placeBalls);
+
+// Инициализация квадратов при загрузке страницы
+window.onload = createSquares;
+
+
+    </script>
+</body>
+</html>
